@@ -71,18 +71,22 @@
 
 		var url = <#= url #>;
 
-		var ajaxData;
+		var ajaxData = {};
+
+		<# method.UrlParameters = method.UrlParameters.Where(x => !url.Contains(x.Name)).ToArray(); #>
 		<# if (method.UrlParameters.Any()) { #>
 			ajaxData = {
 			<# foreach (var parameter in method.UrlParameters) { #>
 				<#= parameter.Name #>: <#= parameter.Name #>,
 			<# } #>
 			};
-		<# } else { #>
-			ajaxData = {};
 		<# } #>
 		<# if (method.BodyParameter != null) { #>
-			ajaxData = $.extend(ajaxData, <#= method.BodyParameter.Name #>);
+			<# if (method.UrlParameters.Any()) { #>
+				ajaxData = $.extend(ajaxData, <#= method.BodyParameter.Name #>);
+			<# } else { #>
+				ajaxData = <#= method.BodyParameter.Name #>;
+			<# } #>
 		<# } #>
 
 		return invoke.call(this, url, "<#= method.Type.ToString().ToLower() #>", options, ajaxData);
