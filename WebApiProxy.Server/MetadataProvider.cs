@@ -27,7 +27,13 @@ namespace WebApiProxy.Server
 
         public Metadata GetMetadata(HttpRequestMessage request)
         {
-            var host = request.RequestUri.Scheme + "://" + request.RequestUri.Authority;
+            var qs = request.GetQueryNameValuePairs()
+                       .ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.OrdinalIgnoreCase);
+            var s = request.RequestUri.ParseQueryString();
+            string protocol;
+            protocol = qs.ContainsKey("enableSsl") ? "https" : request.RequestUri.Scheme;
+
+            var host = protocol + "://" + request.RequestUri.Authority;
             var descriptions = config.Services.GetApiExplorer().ApiDescriptions;
             var documentationProvider = config.Services.GetDocumentationProvider();
 
